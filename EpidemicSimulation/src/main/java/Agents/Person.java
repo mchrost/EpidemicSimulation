@@ -16,7 +16,7 @@ public class Person extends Agent {
             public void action() {
                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                 msg.setContent("Send");
-                msg.addReceiver(new AID("second", AID.ISLOCALNAME));
+                msg.addReceiver(new AID("agent1", AID.ISLOCALNAME));
                 send(msg);
             }
         });
