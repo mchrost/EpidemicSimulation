@@ -7,6 +7,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
@@ -19,15 +20,30 @@ public class Human extends Agent {
 
     private boolean diseased;
     private AID[] offeredHumans;
+    private int numberOfAgents = 0;
     //TODO: Z linii polecen argument
-    private int interval = 1000;
+    private int interval = 10000;
 
     protected void setup(){
         Object[] args = getArguments();
         if (args != null && args.length > 0){
             interval = Integer.parseInt(args[0].toString());
-
         }
+        //Rejestracja descriptora do nasluchiwania innych agentów:
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("meeting");
+        sd.setName(getLocalName());
+
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+        //End rejestracja
 
         //Dwa zachowania - zawsze obecne, block w zaleznosci od diseased
         //myAgent type: Agent
@@ -42,25 +58,33 @@ public class Human extends Agent {
                 ServiceDescription sd = new ServiceDescription();
                 sd.setType("meeting");
                 description.addServices(sd);
-
                 try{
                     //Znalezieni agenci - tu tylko informacyjnie
                     DFAgentDescription[] result = DFService.search(myAgent, description);
+
                     //TODO: wybranie odpowiedniej liczby agentów na podstawie parametru
                     offeredHumans = new AID[result.length];
                     for (int i = 0; i < result.length; ++i)
                     {
                         offeredHumans[i] = result[i].getName();
-                        System.out.println(offeredHumans[i].getLocalName());
                     }
+                    System.out.println(String.format("%s :", myAgent.getLocalName()));
+                    System.out.println(result.length);
                 }
                 catch (FIPAException e){
+                    System.out.println(e.toString());
                     e.printStackTrace();
                 }
-                myAgent.addBehaviour(new MeetingRequest());
+                //if(offeredHumans.length == numberOfAgents)
+                    //myAgent.addBehaviour(new MeetingRequest());
             }
         });
-        addBehaviour(new MeetingRequestAnswer());
+        //Zachowania zdrowej osoby
+        //if(offeredHumans.length == numberOfAgents){
+            //addBehaviour(new MeetingRequestAnswer());
+            //addBehaviour(new Meeting());
+        //}
+
     }
 
     //Propozycja spotkania oraz spotkanie
