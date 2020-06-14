@@ -1,5 +1,8 @@
 package Agents;
 
+import Models.Disease;
+import Utilities.Constants;
+import com.sun.org.apache.bcel.internal.Const;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -15,19 +18,36 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Human extends Agent {
 
+    private int illnessDuration = Constants.MIN_ILLNESS_DURATION;
+    private int infectionProbability = Constants.MIN_INFECTION_PROBABILITY;
+    private boolean isDying = false;
+
+    private Disease disease;
+    private Random random;
+
     private boolean diseased;
     private AID[] offeredHumans;
-    private int numberOfAgents = 0;
     //TODO: Z linii polecen argument
-    private int interval = 10000;
+    private int interval = 1000;
+    private int numberOfAgents = 0;
 
-    protected void setup(){
+    protected void setup() {
         Object[] args = getArguments();
-        if (args != null && args.length > 0){
-            interval = Integer.parseInt(args[0].toString());
+
+        if (args.length == Constants.AGENT_INPUT_PARAMETERS_COUNT)
+        {
+            random = new Random();
+            disease = (Disease)args[0];
+            diseased = (boolean)args[1];
+            interval = (int)args[2];
+            numberOfAgents = (int)args[3];
+
+            setIllnessDuration();
+            setInfectionProbability();
         }
         //Rejestracja descriptora do nasluchiwania innych agentów:
         DFAgentDescription dfd = new DFAgentDescription();
@@ -35,7 +55,6 @@ public class Human extends Agent {
         ServiceDescription sd = new ServiceDescription();
         sd.setType("meeting");
         sd.setName(getLocalName());
-
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
@@ -44,7 +63,6 @@ public class Human extends Agent {
             fe.printStackTrace();
         }
         //End rejestracja
-
         //Dwa zachowania - zawsze obecne, block w zaleznosci od diseased
         //myAgent type: Agent
         //The agent this behaviour belongs to. (class Human)
@@ -229,6 +247,69 @@ public class Human extends Agent {
             else {
                 block();
             }
+        }
+    }
+
+    private void setIsDying()
+    {
+        if (diseased && !isDying)
+        {
+            if(random.nextInt(100) + 1 < disease.getMortalityRate())
+            {
+                isDying = true;
+            }
+        }
+    }
+
+    private int getMultiplier()
+    {
+        boolean isPositive =  random.nextBoolean();
+
+        if (!isPositive)
+        {
+            return -1;
+        }
+        return 1;
+    }
+
+    private void setIllnessDuration()
+    {
+        int illnessDurationModifier = random.nextInt(Constants.ILLNESS_DURATION_MODIFIER);
+        int multiplier = getMultiplier();
+
+        illnessDurationModifier *= multiplier;
+        illnessDuration = disease.getAverageIllnessDuration() + illnessDurationModifier;
+
+        if (illnessDuration < Constants.MIN_ILLNESS_DURATION)
+        {
+            illnessDuration = Constants.MIN_ILLNESS_DURATION;
+        }
+        else if (illnessDuration > Constants.MAX_ILLNESS_DURATION)
+        {
+            illnessDuration = Constants.MAX_ILLNESS_DURATION;
+        }
+    }
+
+    private void setInterval(int interval)
+    {
+        this.interval = interval;
+    }
+
+    private void setInfectionProbability()
+    {
+        int infectionProbabilityModifier = random.nextInt(Constants.INFECTION_PROBABILITY_MODIFIER);
+        int multiplier = getMultiplier();
+
+        infectionProbabilityModifier *= multiplier;
+        infectionProbability = disease.getAverageInfectionProbability() + infectionProbabilityModifier;
+
+        if (illnessDuration < Constants.MIN_INFECTION_PROBABILITY)
+        {
+            infectionProbability = Constants.MIN_INFECTION_PROBABILITY;
+        }
+        else if (illnessDuration > Constants.MAX_INFECTION_PROBABILITY)
+        {
+            infectionProbability = Constants.MAX_INFECTION_PROBABILITY;
         }
     }
 }
