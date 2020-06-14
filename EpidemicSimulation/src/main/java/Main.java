@@ -1,4 +1,5 @@
 import Models.InputParameters;
+import Utilities.Logger;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -11,6 +12,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             InputParameters inputParameters = new InputParameters(args);
+            Logger logger = inputParameters.getLogger();
 
             Runtime r = Runtime.instance();
             ProfileImpl p = new ProfileImpl();
@@ -24,7 +26,7 @@ public class Main {
             AgentController[] ac;
 
             ac = InitializeAgents(cc, numberOfAgents, inputParameters);
-            ActivateAgents(ac);
+            ActivateAgents(ac, logger);
         } catch (Exception e) {
             System.out.println("Error occured during simulation.");
         }
@@ -57,7 +59,8 @@ public class Main {
         return ac;
     }
 
-    private static void ActivateAgents(AgentController[] ac) {
+    private static void ActivateAgents(AgentController[] ac, Logger logger) {
+        logger.setSimulationStartDate();
         for (AgentController agent : ac) {
             try {
                 agent.start();

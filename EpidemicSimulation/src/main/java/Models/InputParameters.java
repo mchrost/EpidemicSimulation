@@ -1,6 +1,7 @@
 package Models;
 
 import Utilities.Constants;
+import Utilities.Logger;
 
 public class InputParameters {
 
@@ -12,6 +13,11 @@ public class InputParameters {
     private int averageInfectionProbability;
     private int mortalityRate;
     private int contactAttemptInterval;
+
+    private long dayLength;
+    private String folderPath;
+
+    private Logger logger;
 
     public InputParameters(String[] args) throws Exception {
         if(args.length != Constants.SIMULATION_INPUT_PARAMETERS_COUNT)
@@ -29,6 +35,11 @@ public class InputParameters {
         averageInfectionProbability = Integer.parseInt(args[4]);
         mortalityRate = Integer.parseInt(args[5]);
         contactAttemptInterval = Integer.parseInt(args[6]);
+
+        dayLength = Long.parseLong(args[7]);
+        folderPath = args[8];
+
+        logger = new Logger(dayLength, folderPath);
     }
 
     public Object[] parseToAgentArguments(boolean isInfected)
@@ -40,9 +51,12 @@ public class InputParameters {
         agentArguments[1] = isInfected;
         agentArguments[2] = contactAttemptInterval;
         agentArguments[3] = numberOfPeople;
+        agentArguments[4] = logger;
 
         return agentArguments;
     }
+
+    public Logger getLogger() { return logger; }
 
     public int getSimulationLength() {
         return simulationLength;

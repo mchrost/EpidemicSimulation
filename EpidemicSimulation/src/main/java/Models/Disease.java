@@ -16,11 +16,11 @@ public class Disease {
 
     private void setMortalityRate(int mortalityRate)
     {
-        if (this.mortalityRate < Constants.MIN_MORTALITY_RATE)
+        if (mortalityRate < Constants.MIN_MORTALITY_RATE)
         {
             this.mortalityRate = Constants.MIN_MORTALITY_RATE;
         }
-        else if (this.mortalityRate > Constants.MAX_MORTALITY_RATE)
+        else if (mortalityRate > Constants.MAX_MORTALITY_RATE)
         {
             this.mortalityRate = Constants.MAX_MORTALITY_RATE;
         }
