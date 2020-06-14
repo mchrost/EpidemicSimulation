@@ -301,11 +301,11 @@ public class Human extends Agent {
         infectionProbabilityModifier *= multiplier;
         infectionProbability = disease.getAverageInfectionProbability() + infectionProbabilityModifier;
 
-        if (illnessDuration < Constants.MIN_INFECTION_PROBABILITY)
+        if (infectionProbability< Constants.MIN_INFECTION_PROBABILITY)
         {
             infectionProbability = Constants.MIN_INFECTION_PROBABILITY;
         }
-        else if (illnessDuration > Constants.MAX_INFECTION_PROBABILITY)
+        else if (infectionProbability > Constants.MAX_INFECTION_PROBABILITY)
         {
             infectionProbability = Constants.MAX_INFECTION_PROBABILITY;
         }
