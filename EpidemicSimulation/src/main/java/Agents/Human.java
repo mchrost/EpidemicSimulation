@@ -14,8 +14,7 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 public class Human extends Agent {
@@ -29,8 +28,7 @@ public class Human extends Agent {
 
     private boolean diseased;
     private AID offeredHuman;
-    //To sie i tak nadpisze niżej
-    DFAgentDescription[] result = new DFAgentDescription[1];
+    private LocalDateTime timeOfInfection;
     //TODO: Z linii polecen argument
     private int interval = 10000;
     private int numberOfAgents = 0;
@@ -49,7 +47,7 @@ public class Human extends Agent {
             setIllnessDuration();
             setInfectionProbability();
         }
-        interval = 10000;
+        interval = 5000;
         //Agenci chorzy na start
         if(diseased)
         {
@@ -77,9 +75,6 @@ public class Human extends Agent {
         addBehaviour(new TickerBehaviour(this, interval) {
             @Override
             protected void onTick() {
-                //TODO: logika wymiany informacji
-                //System.out.println(String.format("Agent %s looking for colleagues", this.myAgent.getAID().toString()));
-
                 DFAgentDescription description = new DFAgentDescription();
                 ServiceDescription sd = new ServiceDescription();
                 sd.setType("meeting");
@@ -89,37 +84,28 @@ public class Human extends Agent {
                     //Znalezieni agenci - jesli zostana znalezieni wszyscy - podepnij zachowania
                     if(diseased){
                         DFAgentDescription[] res = DFService.search(myAgent, description);
-                        result = res;
-
                         //wybieramy tylko jednego do zaoferowania spotkania
                         offeredHuman = res[random.nextInt(numberOfAgents)].getName();
                     }
-
-                    //Dziala
-                    //System.out.println(offeredHuman.getLocalName());
                 }
                 catch (FIPAException e){
                     e.printStackTrace();
                 }
-                //test
-                //if(result.length == numberOfAgents)
-                    myAgent.addBehaviour(new MeetingRequest());
+
+                myAgent.addBehaviour(new MeetingRequest());
             }
         });
-        //Zachowania zdrowej osoby
-        //if(result.length == numberOfAgents){
-            addBehaviour(new MeetingRequestAnswer());
-            addBehaviour(new Meeting());
-        //}
+
+        addBehaviour(new MeetingRequestAnswer());
+        addBehaviour(new Meeting());
+
 
     }
 
     //Propozycja spotkania oraz spotkanie
+    //TODO: Smierc agenta lub jego wyzdrowienie
     private class MeetingRequest extends Behaviour{
         private AID acceptedHuman;
-        private int bestPrice;
-        //private int repliesCnt = 0;
-        //private int meetingID = 0;
         private MessageTemplate mt;
         private int step = 0;
 
@@ -171,7 +157,7 @@ public class Human extends Agent {
                         break;
                     case 3:
                         //otrzymanie potwierdzenia spotkania przez osobę spytaną
-                        //TODO: Odpowiednia pasująca nam logika co zrobić po udanym spotkaniu po stronie chorego
+                        //TODO: Odpowiednia pasująca nam logika co zrobić po udanym spotkaniu po stronie chorego - o ile jakas jest
                         reply = myAgent.receive(mt);
                         if (reply != null) {
                             step = 4;
@@ -185,7 +171,7 @@ public class Human extends Agent {
             else
                 block();
         }
-
+        //TODO: dodać warunek isDead do alternatywy w return
         public boolean done() {
             if (step == 2 && acceptedHuman==null) {
                 System.out.println("Zero akceptacji spotkań");
@@ -239,12 +225,17 @@ public class Human extends Agent {
                     String title = msg.getContent();
                     ACLMessage reply = msg.createReply();
                 if (diseased) {
+                    timeOfInfection = LocalDateTime.now();
                     setIsDying();
                     reply.setPerformative(ACLMessage.INFORM);
-                    System.out.println("Agent " + myAgent.getLocalName() + " zostal zarazony");
+                    System.out.println("Agent " + myAgent.getLocalName() + " got infected");
+                    if(isDying){
+                        System.out.println("Agent " + myAgent.getLocalName() + " is dying");
+                    }
+
                 }
                 else {
-                    System.out.println("Agent " + myAgent.getLocalName() + " nie zostal zarazony");
+                    System.out.println("Agent " + myAgent.getLocalName() + " did not get infected");
                     reply.setPerformative(ACLMessage.FAILURE);
                     reply.setContent("not-available");
                 }
