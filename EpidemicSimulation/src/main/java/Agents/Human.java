@@ -2,7 +2,6 @@ package Agents;
 
 import Models.Disease;
 import Utilities.Constants;
-import com.sun.org.apache.bcel.internal.Const;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -10,7 +9,6 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
@@ -32,7 +30,7 @@ public class Human extends Agent {
     private boolean diseased;
     private AID[] offeredHumans;
     //TODO: Z linii polecen argument
-    private int interval = 1000;
+    private int interval = 10000;
     private int numberOfAgents = 0;
 
     protected void setup() {
