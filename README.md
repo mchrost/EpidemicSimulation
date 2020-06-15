@@ -8,3 +8,7 @@ https://jade.tilab.com/
 
 ### Jade Maven
 https://jade.tilab.com/developers/maven/
+
+### Wizualizacja
+https://colab.research.google.com/drive/1BK8QHC-Ks04V66AO7kU-rVWgxAX9ydOr?usp=sharing
+
