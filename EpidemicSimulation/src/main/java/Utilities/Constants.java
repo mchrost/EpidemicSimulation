@@ -2,9 +2,9 @@ package Utilities;
 
 public class Constants {
     public static final int MIN_MORTALITY_RATE = 1;
-    public static final int MIN_INFECTION_PROBABILITY = 5;
+    public static final int MIN_INFECTION_PROBABILITY = 150;
     public static final int MAX_MORTALITY_RATE = 50;
-    public static final int MAX_INFECTION_PROBABILITY = 50;
+    public static final int MAX_INFECTION_PROBABILITY = 150;
     public static final int MIN_ILLNESS_DURATION = 5;
     public static final int MAX_ILLNESS_DURATION = 21;
     public static final int SIMULATION_INPUT_PARAMETERS_COUNT = 9;

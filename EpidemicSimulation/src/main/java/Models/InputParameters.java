@@ -44,7 +44,7 @@ public class InputParameters {
 
     public Object[] parseToAgentArguments(boolean isInfected)
     {
-        Object[] agentArguments = new Object[Constants.AGENT_INPUT_PARAMETERS_COUNT];
+        Object[] agentArguments = new Object[Constants.AGENT_INPUT_PARAMETERS_COUNT + 1]; // bylo bez 1
         Disease disease = new Disease(mortalityRate, averageInfectionProbability, averageIllnessDuration);
 
         agentArguments[0] = disease;
@@ -52,6 +52,7 @@ public class InputParameters {
         agentArguments[2] = contactAttemptInterval;
         agentArguments[3] = numberOfPeople;
         agentArguments[4] = logger;
+        agentArguments[5] = numberOfIInitiallyInfectedPeople;
 
         return agentArguments;
     }

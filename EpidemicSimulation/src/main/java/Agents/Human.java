@@ -20,6 +20,10 @@ import java.util.Random;
 
 public class Human extends Agent {
 
+    public static int diseasedHumans;
+    public static int healthyHumans;
+    public static int deadHumans = 0;
+
     private int day = 1000;
 
     private int illnessDuration = Constants.MIN_ILLNESS_DURATION;
@@ -42,14 +46,16 @@ public class Human extends Agent {
     protected void setup() {
         Object[] args = getArguments();
 
-        if (args.length == Constants.AGENT_INPUT_PARAMETERS_COUNT) {
+        if (args.length == Constants.AGENT_INPUT_PARAMETERS_COUNT+1) {
             random = new Random();
             disease = (Disease) args[0];
             diseased = (boolean) args[1];
             interval = ((int) args[2]) * day;
             numberOfAgents = (int) args[3];
             logger = (Logger) args[4];
+            diseasedHumans = (int) args[5];
 
+            healthyHumans = numberOfAgents - diseasedHumans;
             setIllnessDuration();
             setInfectionProbability();
         }
@@ -84,6 +90,7 @@ public class Human extends Agent {
                 ServiceDescription sd = new ServiceDescription();
                 sd.setType("meeting");
                 description.addServices(sd);
+                System.out.println("Diseased: " + diseasedHumans + " Healthy: " + healthyHumans + " Dead: " + deadHumans);
 
                 try {
                     //Znalezieni agenci - jesli zostana znalezieni wszyscy - podepnij zachowania
@@ -114,7 +121,7 @@ public class Human extends Agent {
         private AID acceptedHuman;
         private MessageTemplate mt;
         private int step = 0;
-
+        //Warunki progowe - jesli
         public void action() {
             if (diseased) {
                 if (!isDead) {
@@ -199,7 +206,7 @@ public class Human extends Agent {
 
         @Override
         public void action() {
-            if (!diseased) {
+            if (!diseased && (healthyHumans<numberOfAgents && diseasedHumans > 1)) {
                 MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
                 ACLMessage msg = myAgent.receive(mt);
                 if (msg != null) {
@@ -228,7 +235,7 @@ public class Human extends Agent {
 
         @Override
         public void action() {
-            if (!diseased) {
+            if (!diseased && (healthyHumans<numberOfAgents && diseasedHumans > 1)) {
                 MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
                 ACLMessage msg = myAgent.receive(mt);
                 if (msg != null) {
@@ -239,6 +246,10 @@ public class Human extends Agent {
                     if (diseased) {
                         timeOfInfection = System.currentTimeMillis();
                         setIsDying();
+                        //Set counts
+                        diseasedHumans++;
+                        healthyHumans = numberOfAgents - diseasedHumans - deadHumans;
+
                         reply.setPerformative(ACLMessage.INFORM);
                         System.out.println("Agent " + myAgent.getLocalName() + " got infected");
                         if (isDying) {
@@ -285,6 +296,8 @@ public class Human extends Agent {
             {
                 logger.logAgentStateChange(agentName, AgentState.DEAD, currentTime);
                 isDead = true;
+                diseasedHumans--;
+                deadHumans++;
                 return true;
             }
         }
@@ -300,6 +313,8 @@ public class Human extends Agent {
             {
                 logger.logAgentStateChange(agentName, AgentState.CURED, currentTime);
                 diseased = false;
+                diseasedHumans--;
+                healthyHumans = numberOfAgents - diseasedHumans - deadHumans;
                 return true;
             }
         }
