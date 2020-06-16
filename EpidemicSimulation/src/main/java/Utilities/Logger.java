@@ -11,19 +11,16 @@ public class Logger {
     private long dayDuration;
     private String folderPath;
 
-    public Logger(long dayDuration, String folderPath)
-    {
+    public Logger(long dayDuration, String folderPath) {
         this.dayDuration = dayDuration * 1000;
         this.folderPath = folderPath;
     }
 
-    public void logAgentStateChange(String agentName, AgentState agentState, long eventTime)
-    {
+    public void logAgentStateChange(String agentName, AgentState agentState, long eventTime) {
         String filePath = folderPath + agentName + ".csv";
-        try(FileWriter fw = new FileWriter(filePath, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            PrintWriter out = new PrintWriter(bw))
-        {
+        try (FileWriter fw = new FileWriter(filePath, true);
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
             int day = Math.toIntExact(((eventTime - simulationStartDate) / dayDuration));
             String state = getStateString(agentState);
             String textToWrite = String.format("%s,%s,%d", agentName, state, day);
@@ -34,13 +31,11 @@ public class Logger {
         }
     }
 
-    public void setSimulationStartDate()
-    {
-        simulationStartDate = System.currentTimeMillis();
+    public void setSimulationStartDate(long simulationStartDate) {
+        this.simulationStartDate = simulationStartDate;
     }
 
-    private String getStateString(AgentState agentState)
-    {
+    private String getStateString(AgentState agentState) {
         String state = "";
         switch (agentState) {
             case CURED:

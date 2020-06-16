@@ -1,3 +1,4 @@
+import Agents.Human;
 import Models.InputParameters;
 import Utilities.Logger;
 import jade.core.Profile;
@@ -11,6 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            long simulationStartDate;
             InputParameters inputParameters = new InputParameters(args);
             Logger logger = inputParameters.getLogger();
 
@@ -26,7 +28,17 @@ public class Main {
             AgentController[] ac;
 
             ac = InitializeAgents(cc, numberOfAgents, inputParameters);
-            ActivateAgents(ac, logger);
+
+            simulationStartDate = System.currentTimeMillis();
+            ActivateAgents(ac, simulationStartDate, logger);
+
+            while (!((Human.deadHumans == inputParameters.getNumberOfPeople()) ||
+                    (Human.healthyHumans == inputParameters.getNumberOfPeople() - Human.deadHumans) ||
+                    isSimulationTimePassed(simulationStartDate, inputParameters))) {
+            }
+
+            r.shutDown();
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error occured during simulation.");
@@ -60,8 +72,8 @@ public class Main {
         return ac;
     }
 
-    private static void ActivateAgents(AgentController[] ac, Logger logger) {
-        logger.setSimulationStartDate();
+    private static void ActivateAgents(AgentController[] ac, long simulationStartDate, Logger logger) {
+        logger.setSimulationStartDate(simulationStartDate);
         for (AgentController agent : ac) {
             try {
                 agent.start();
@@ -69,5 +81,12 @@ public class Main {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static boolean isSimulationTimePassed(long simulationStartDate, InputParameters inputParameters) {
+        if (System.currentTimeMillis() - simulationStartDate > inputParameters.getSimulationLength() * 1000) {
+            return true;
+        }
+        return false;
     }
 }
